@@ -1,0 +1,27 @@
+server:
+  port: ${APP_PORT:9000}
+spring:
+  application:
+    name: microservice-products
+  datasource:
+    url: jdbc:h2:file:./data/products-db
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+  h2:
+    console:
+      enabled: ${H2_CONSOLE_ENABLED:false}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP:products-consumer}
+    properties:
+      schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
+app:
+  kafka:
+    product-topic: ${KAFKA_PRODUCT_TOPIC:products-topic}
