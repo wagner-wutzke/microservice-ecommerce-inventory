@@ -1,6 +1,6 @@
 package net.wowdev.microservices.products.service;
 
-import net.wowdev.microservices.products.domain.Product;
+import net.wowdev.microservice.ecommerce.dto.ProductDTO;
 
-public record ProductChangedEvent(Product product) {
+public record ProductChangedEvent(ProductDTO productDTO) {
 }

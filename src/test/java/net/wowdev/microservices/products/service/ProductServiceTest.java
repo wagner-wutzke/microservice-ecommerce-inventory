@@ -1,73 +1,119 @@
 package net.wowdev.microservices.products.service;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-import java.math.BigDecimal;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import net.wowdev.microservices.products.TestData;
-import net.wowdev.microservices.products.domain.Product;
-import net.wowdev.microservices.products.dto.ProductRequest;
-import net.wowdev.microservices.products.mapper.ProductMapper;
+
+import net.wowdev.microservice.ecommerce.dto.ProductDTO;
+import net.wowdev.microservice.ecommerce.entity.ProductEntity;
 import net.wowdev.microservices.products.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
-    @Mock ProductRepository repository;
-    @Mock ProductMapper mapper;
-    @Mock ApplicationEventPublisher eventPublisher;
+    private static final UUID ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+
+    @Mock private ProductRepository repository;
+    @Mock private ApplicationEventPublisher eventPublisher;
+
     private ProductService service;
-    private final UUID id = TestData.product().getId();
-    private final ProductRequest request = new ProductRequest(new BigDecimal("10.00"), "Name", "Description", "category");
 
-    @BeforeEach void setUp() { service = new ProductService(repository, mapper, eventPublisher); }
-
-    @Test void findsById() {
-        when(repository.findById(id)).thenReturn(Optional.of(TestData.product()));
-        assertThat(service.findById(id)).isNull();
-        verify(mapper).toResponse(any(Product.class));
+    @BeforeEach
+    void setUp() {
+        service = new ProductService(repository, eventPublisher);
     }
 
-    @Test void rejectsMissingId() {
-        when(repository.findById(id)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.findById(id)).isInstanceOf(ProductNotFoundException.class);
+    @Test
+    void findsById() {
+        when(repository.findById(ID)).thenReturn(Optional.of(product()));
+
+        final ProductDTO result = service.findById(ID);
+
+        assertThat(result.getId()).isEqualTo(ID);
+        assertThat(result.getName()).isEqualTo("Keyboard");
+        assertThat(result.getUnitPrice()).isEqualTo(12.34d);
     }
 
-    @Test void listsProducts() {
-        when(repository.findAll(any(org.springframework.data.domain.Pageable.class))).thenReturn(new PageImpl<>(java.util.List.of(TestData.product())));
-        assertThat(service.findAll(0, 20)).hasSize(1);
+    @Test
+    void rejectsMissingId() {
+        when(repository.findById(ID)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.findById(ID))
+                .isInstanceOf(ProductNotFoundException.class);
     }
 
-    @Test void createsAndPublishesAfterTransaction() {
-        when(repository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        service.create(request);
-        verify(eventPublisher).publishEvent(any(ProductChangedEvent.class));
+    @Test
+    void listsProducts() {
+        when(repository.findAll(any(org.springframework.data.domain.Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(product())));
+
+        assertThat(service.findAll(0, 20).getContent())
+                .singleElement()
+                .extracting(ProductDTO::getId)
+                .isEqualTo(ID);
     }
 
-    @Test void updatesAndDeletes() {
-        final Product product = TestData.product();
-        when(repository.findById(id)).thenReturn(Optional.of(product));
+    @Test
+    void createsAndPublishesProductEvent() {
+        final ProductDTO request = dto("Name", 10.00d);
+        when(repository.save(any(ProductEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        final ProductDTO result = service.create(request);
+
+        assertThat(result.getName()).isEqualTo("Name");
+        verify(eventPublisher).publishEvent(new ProductChangedEvent(result));
+    }
+
+    @Test
+    void updatesAndDeletes() {
+        final ProductEntity product = product();
+        final ProductDTO request = dto("Updated name", 20.00d);
+        when(repository.findById(ID)).thenReturn(Optional.of(product));
         when(repository.save(product)).thenReturn(product);
-        service.update(id, request);
-        verify(eventPublisher).publishEvent(any(ProductChangedEvent.class));
-        when(repository.existsById(id)).thenReturn(true);
-        service.delete(id);
-        verify(repository).deleteById(id);
+        when(repository.existsById(ID)).thenReturn(true);
+
+        final ProductDTO result = service.update(ID, request);
+        service.delete(ID);
+
+        assertThat(product.getName()).isEqualTo("Updated name");
+        assertThat(product.getUnitPrice()).isEqualTo(20.00d);
+        assertThat(result.getName()).isEqualTo("Updated name");
+        verify(eventPublisher).publishEvent(new ProductChangedEvent(result));
+        verify(repository).deleteById(ID);
     }
 
-    @Test void rejectsMissingUpdateAndDelete() {
-        when(repository.findById(id)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.update(id, request)).isInstanceOf(ProductNotFoundException.class);
-        when(repository.existsById(id)).thenReturn(false);
-        assertThatThrownBy(() -> service.delete(id)).isInstanceOf(ProductNotFoundException.class);
+    @Test
+    void rejectsMissingUpdateAndDelete() {
+        when(repository.findById(ID)).thenReturn(Optional.empty());
+        when(repository.existsById(ID)).thenReturn(false);
+        final ProductDTO request = dto("Name", 10.00d);
+
+        assertThatThrownBy(() -> service.update(ID, request))
+                .isInstanceOf(ProductNotFoundException.class);
+        assertThatThrownBy(() -> service.delete(ID))
+                .isInstanceOf(ProductNotFoundException.class);
+    }
+
+    private static ProductEntity product() {
+        return new ProductEntity(ID, "Keyboard", "Mechanical keyboard", 12.34d, "USD", "hardware",
+                Instant.parse("2026-01-01T00:00:00Z"), Instant.parse("2026-01-01T00:00:00Z"));
+    }
+
+    private static ProductDTO dto(final String name, final double unitPrice) {
+        return new ProductDTO(ID, name, "Description", unitPrice, "USD", "hardware",
+                Instant.parse("2026-01-01T00:00:00Z"), Instant.parse("2026-01-01T00:00:00Z"));
     }
 }

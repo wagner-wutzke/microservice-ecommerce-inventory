@@ -2,12 +2,12 @@ package net.wowdev.microservices.products;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
 
 @SpringBootApplication
-@EnableJpaAuditing
+@EntityScan(basePackages = "net.wowdev.microservice.ecommerce.entity")
 public class MicroserviceProductsApplication {
-    public static void main(final String[] args) {
+    static void main(final String[] args) {
         SpringApplication.run(MicroserviceProductsApplication.class, args);
     }
 }

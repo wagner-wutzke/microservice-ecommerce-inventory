@@ -2,10 +2,9 @@ package net.wowdev.microservices.products.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
-import net.wowdev.microservices.products.dto.ProductRequest;
-import net.wowdev.microservices.products.dto.ProductResponse;
+import net.wowdev.microservice.ecommerce.dto.ProductDTO;
 import net.wowdev.microservices.products.service.ProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
@@ -16,10 +15,12 @@ class ProductControllerTest {
     private final ProductService service = mock(ProductService.class);
     private final ProductController controller = new ProductController(service);
     private final UUID id = UUID.randomUUID();
-    private final ProductRequest request = new ProductRequest(new BigDecimal("1.00"), "n", "d", "c");
+    private final Instant timestamp = Instant.parse("2026-01-01T00:00:00Z");
+    private final ProductDTO request = new ProductDTO(id, "n", "d", 1.00d, "USD", "c", timestamp, timestamp);
 
     @Test void supportsCrudOperations() {
-        final ProductResponse response = new ProductResponse(id, request.unitPrice(), request.name(), request.description(), request.category(), null, null);
+        final ProductDTO response = new ProductDTO(id, request.getName(), request.getDescription(), request.getUnitPrice(),
+                request.getCurrency(), request.getCategory(), request.getCreatedAt(), request.getModifiedAt());
         when(service.findById(id)).thenReturn(response);
         when(service.findAll(0, 20)).thenReturn(new PageImpl<>(List.of(response)));
         when(service.create(request)).thenReturn(response);

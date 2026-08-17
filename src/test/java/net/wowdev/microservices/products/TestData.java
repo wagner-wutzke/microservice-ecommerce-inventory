@@ -1,21 +1,17 @@
 package net.wowdev.microservices.products;
 
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
-import net.wowdev.microservices.products.domain.Product;
+
+import net.wowdev.microservice.ecommerce.dto.ProductDTO;
 
 public final class TestData {
     private TestData() { }
 
-    public static Product product() {
-        final Product product = new Product(new BigDecimal("12.34"), "Keyboard", "Mechanical keyboard", "hardware");
-        try {
-            final var field = Product.class.getDeclaredField("id");
-            field.setAccessible(true);
-            field.set(product, UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        } catch (ReflectiveOperationException exception) {
-            throw new AssertionError(exception);
-        }
-        return product;
+    public static ProductDTO product() {
+        final UUID id = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        final Instant timestamp = Instant.parse("2026-01-01T00:00:00Z");
+        return new ProductDTO(id, "Keyboard", "Mechanical keyboard", 12.34d, "USD", "hardware",
+                timestamp, timestamp);
     }
 }

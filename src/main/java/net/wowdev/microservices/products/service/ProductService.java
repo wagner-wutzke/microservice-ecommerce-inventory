@@ -1,10 +1,8 @@
 package net.wowdev.microservices.products.service;
 
-import java.util.UUID;
-import net.wowdev.microservices.products.domain.Product;
-import net.wowdev.microservices.products.dto.ProductRequest;
-import net.wowdev.microservices.products.dto.ProductResponse;
-import net.wowdev.microservices.products.mapper.ProductMapper;
+import net.wowdev.microservice.ecommerce.dto.ProductDTO;
+import net.wowdev.microservice.ecommerce.entity.ProductEntity;
+import net.wowdev.microservice.ecommerce.mapper.ProductMapper;
 import net.wowdev.microservices.products.repository.ProductRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -13,43 +11,57 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
 public class ProductService {
+
     private final ProductRepository repository;
-    private final ProductMapper mapper;
     private final ApplicationEventPublisher eventPublisher;
 
-    public ProductService(final ProductRepository repository, final ProductMapper mapper,
+    public ProductService(final ProductRepository repository,
                           final ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
-        this.mapper = mapper;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional(readOnly = true)
-    public ProductResponse findById(final UUID id) {
-        return mapper.toResponse(repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id)));
+    public ProductDTO findById(final UUID id) {
+        return ProductMapper.toDto(repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id)));
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponse> findAll(final int page, final int pageSize) {
-        return repository.findAll(PageRequest.of(page, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"))).map(mapper::toResponse);
+    public Page<ProductDTO> findAll(final int page, final int pageSize) {
+        return repository.findAll(PageRequest.of(page, pageSize,
+                        Sort.by(Sort.Direction.DESC, "createdAt")))
+                .map(ProductMapper::toDto);
     }
 
     @Transactional
-    public ProductResponse create(final ProductRequest request) {
-        final Product saved = repository.save(new Product(request.unitPrice(), request.name(), request.description(), request.category()));
-        eventPublisher.publishEvent(new ProductChangedEvent(saved));
-        return mapper.toResponse(saved);
+    public ProductDTO create(final ProductDTO productDTO) {
+        ProductEntity entity = ProductMapper.toEntity(productDTO);
+        entity.setCreatedAt(Instant.now());
+        entity.setModifiedAt(Instant.now());
+        entity.setId(UUID.randomUUID());
+        final ProductEntity saved = repository.save(entity);
+        eventPublisher.publishEvent(new ProductChangedEvent(ProductMapper.toDto(saved)));
+        return ProductMapper.toDto(saved);
     }
 
     @Transactional
-    public ProductResponse update(final UUID id, final ProductRequest request) {
-        final Product product = repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
-        product.update(request.unitPrice(), request.name(), request.description(), request.category());
-        final Product saved = repository.save(product);
-        eventPublisher.publishEvent(new ProductChangedEvent(saved));
-        return mapper.toResponse(saved);
+    public ProductDTO update(final UUID id, final ProductDTO productDTO) {
+        final ProductEntity product = repository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+        product.setUnitPrice(productDTO.getUnitPrice());
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setCategory(productDTO.getCategory());
+        product.setModifiedAt(Instant.now());
+        final ProductEntity saved = repository.save(product);
+        ProductDTO dto = ProductMapper.toDto(saved);
+        eventPublisher.publishEvent(new ProductChangedEvent(dto));
+        return dto;
     }
 
     @Transactional
