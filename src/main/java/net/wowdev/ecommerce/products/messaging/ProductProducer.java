@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.messaging;
+package net.wowdev.ecommerce.products.messaging;
 
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
 import org.springframework.beans.factory.annotation.Value;

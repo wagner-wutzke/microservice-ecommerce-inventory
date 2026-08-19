@@ -1,9 +1,9 @@
-package net.wowdev.microservices.products.service;
+package net.wowdev.ecommerce.products.service;
 
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.entity.InventoryChangeType;
 import net.wowdev.ecommerce.domain.entity.InventoryEntity;
-import net.wowdev.microservices.products.repository.InventoryRepository;
+import net.wowdev.ecommerce.products.repository.InventoryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;

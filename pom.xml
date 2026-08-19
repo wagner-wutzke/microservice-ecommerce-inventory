@@ -10,10 +10,10 @@
         <relativePath/>
     </parent>
 
-    <groupId>net.wowdev.microservice.ecommerce</groupId>
+    <groupId>net.wowdev.ecommerce</groupId>
     <artifactId>products-service</artifactId>
     <version>1.0.0</version>
-    <name>ecommerce-products-service</name>
+    <name>products-service</name>
     <description>Product &amp; Inventory REST and Kafka microservice</description>
 
     <properties>
@@ -55,7 +55,10 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-h2console</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -63,7 +66,7 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>net.wowdev.microservice.ecommerce</groupId>
+            <groupId>net.wowdev.ecommerce</groupId>
             <artifactId>domain</artifactId>
             <version>1.0.0</version>
         </dependency>
@@ -78,11 +81,6 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.vaadin.external.google</groupId>
-            <artifactId>android-json</artifactId>
-            <version>0.0.20131108.vaadin1</version>
         </dependency>
     </dependencies>
 

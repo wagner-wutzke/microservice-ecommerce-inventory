@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.service;
+package net.wowdev.ecommerce.products.service;
 
 import java.util.UUID;
 

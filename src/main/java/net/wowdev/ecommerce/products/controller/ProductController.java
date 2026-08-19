@@ -1,10 +1,10 @@
-package net.wowdev.microservices.products.controller;
+package net.wowdev.ecommerce.products.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
-import net.wowdev.microservices.products.service.ProductServiceImpl;
+import net.wowdev.ecommerce.products.service.ProductServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

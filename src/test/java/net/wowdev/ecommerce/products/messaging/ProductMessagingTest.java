@@ -1,7 +1,7 @@
-package net.wowdev.microservices.products.messaging;
+package net.wowdev.ecommerce.products.messaging;
 
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
-import net.wowdev.microservices.products.TestData;
+import net.wowdev.ecommerce.products.TestData;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
 

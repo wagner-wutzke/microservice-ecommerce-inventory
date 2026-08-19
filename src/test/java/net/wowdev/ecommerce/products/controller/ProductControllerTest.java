@@ -1,7 +1,7 @@
-package net.wowdev.microservices.products.controller;
+package net.wowdev.ecommerce.products.controller;
 
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
-import net.wowdev.microservices.products.service.ProductServiceImpl;
+import net.wowdev.ecommerce.products.service.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;

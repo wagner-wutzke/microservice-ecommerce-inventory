@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.repository;
+package net.wowdev.ecommerce.products.repository;
 
 import net.wowdev.ecommerce.domain.entity.InventoryEntity;
 import org.springframework.data.domain.Page;

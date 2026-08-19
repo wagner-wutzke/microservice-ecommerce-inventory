@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products;
+package net.wowdev.ecommerce.products;
 
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
 

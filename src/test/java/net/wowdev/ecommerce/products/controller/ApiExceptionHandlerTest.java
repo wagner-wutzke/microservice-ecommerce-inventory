@@ -1,7 +1,7 @@
-package net.wowdev.microservices.products.controller;
+package net.wowdev.ecommerce.products.controller;
 
-import net.wowdev.microservices.products.service.InventoryNotFoundException;
-import net.wowdev.microservices.products.service.ProductNotFoundException;
+import net.wowdev.ecommerce.products.service.InventoryNotFoundException;
+import net.wowdev.ecommerce.products.service.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 

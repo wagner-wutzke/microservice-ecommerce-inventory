@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.repository;
+package net.wowdev.ecommerce.products.repository;
 
 import net.wowdev.ecommerce.domain.entity.ProductEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

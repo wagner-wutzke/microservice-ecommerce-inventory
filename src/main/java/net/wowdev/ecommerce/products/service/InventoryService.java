@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.service;
+package net.wowdev.ecommerce.products.service;
 
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import org.springframework.data.domain.Page;

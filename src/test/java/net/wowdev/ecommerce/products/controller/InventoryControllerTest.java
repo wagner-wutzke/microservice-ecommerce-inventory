@@ -1,8 +1,8 @@
-package net.wowdev.microservices.products.controller;
+package net.wowdev.ecommerce.products.controller;
 
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.entity.InventoryChangeType;
-import net.wowdev.microservices.products.service.InventoryService;
+import net.wowdev.ecommerce.products.service.InventoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;

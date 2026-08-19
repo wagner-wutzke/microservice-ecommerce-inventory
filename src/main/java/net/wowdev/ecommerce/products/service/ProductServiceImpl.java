@@ -1,9 +1,9 @@
-package net.wowdev.microservices.products.service;
+package net.wowdev.ecommerce.products.service;
 
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
 import net.wowdev.ecommerce.domain.entity.ProductEntity;
 import net.wowdev.ecommerce.domain.mapper.ProductMapper;
-import net.wowdev.microservices.products.repository.ProductRepository;
+import net.wowdev.ecommerce.products.repository.ProductRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

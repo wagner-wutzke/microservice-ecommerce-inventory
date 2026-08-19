@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.config;
+package net.wowdev.ecommerce.products.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

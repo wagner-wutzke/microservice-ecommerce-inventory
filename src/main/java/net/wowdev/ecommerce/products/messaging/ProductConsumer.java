@@ -1,4 +1,4 @@
-package net.wowdev.microservices.products.messaging;
+package net.wowdev.ecommerce.products.messaging;
 
 import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
