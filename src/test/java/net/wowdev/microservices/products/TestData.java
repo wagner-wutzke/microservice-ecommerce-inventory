@@ -1,9 +1,9 @@
 package net.wowdev.microservices.products;
 
+import net.wowdev.microservice.ecommerce.dto.ProductDTO;
+
 import java.time.Instant;
 import java.util.UUID;
-
-import net.wowdev.microservice.ecommerce.dto.ProductDTO;
 
 public final class TestData {
     private TestData() { }

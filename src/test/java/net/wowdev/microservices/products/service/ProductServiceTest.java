@@ -1,16 +1,5 @@
 package net.wowdev.microservices.products.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 import net.wowdev.microservice.ecommerce.dto.ProductDTO;
 import net.wowdev.microservice.ecommerce.entity.ProductEntity;
 import net.wowdev.microservices.products.repository.ProductRepository;
@@ -22,6 +11,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageImpl;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
     private static final UUID ID = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -29,11 +29,11 @@ class ProductServiceTest {
     @Mock private ProductRepository repository;
     @Mock private ApplicationEventPublisher eventPublisher;
 
-    private ProductService service;
+    private ProductServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new ProductService(repository, eventPublisher);
+        service = new ProductServiceImpl(repository, eventPublisher);
     }
 
     @Test
@@ -74,7 +74,7 @@ class ProductServiceTest {
         final ProductDTO result = service.create(request);
 
         assertThat(result.getName()).isEqualTo("Name");
-        verify(eventPublisher).publishEvent(new ProductChangedEvent(result));
+        verify(eventPublisher).publishEvent(result);
     }
 
     @Test
@@ -91,7 +91,7 @@ class ProductServiceTest {
         assertThat(product.getName()).isEqualTo("Updated name");
         assertThat(product.getUnitPrice()).isEqualTo(20.00d);
         assertThat(result.getName()).isEqualTo("Updated name");
-        verify(eventPublisher).publishEvent(new ProductChangedEvent(result));
+        verify(eventPublisher).publishEvent(result);
         verify(repository).deleteById(ID);
     }
 

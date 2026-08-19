@@ -10,23 +10,23 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     open-in-view: false
     show-sql: false
   h2:
     console:
-      enabled: ${H2_CONSOLE_ENABLED:true}
+      enabled: true # ${H2_CONSOLE_ENABLED:true}
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092,localhost:9094}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP:products-consumer}
+      group-id: ${KAFKA_CONSUMER_GROUP:products-events-consumer}
+      properties:
+        spring.json.trusted.packages: "net.wowdev.microservice.ecommerce.dto"
+
     properties:
       schema.registry.url: ${SCHEMA_REGISTRY_URL:http://localhost:8081}
     producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      # Confluent Avro serializer: schema is registered/validated at the edge,
-      # so a non-conforming payload never reaches the topic.
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
       # Strict idempotence. NOTE: Kafka rejects `enable.idempotence=true` together
       # with acks=1 (ConfigException at producer start) — the broker cannot
       # deduplicate without full ISR acknowledgement. acks=all is therefore
@@ -36,8 +36,6 @@ spring:
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
-        schema.registry.url: http://localhost:8081
-        auto.register.schemas: true
         # Reject records that do not match the registered writer schema.
         delivery.timeout.ms: 30000
         request.timeout.ms: 10000
@@ -45,4 +43,10 @@ spring:
 
 app:
   kafka:
-    product-topic: ${KAFKA_PRODUCT_TOPIC:products-topic}
+    product-changes-topic: ${KAFKA_PRODUCT_CHANGES_TOPIC:product-changes-topic.v1}
+    inventory-changes-topic: ${KAFKA_INVENTORY_CHANGES_TOPIC:inventory-changes-topic.v1}
+
+logging:
+  level:
+    net.wowdev.microservices.products: DEBUG
+    org.hibernate.orm.jdbc.bind: DEBUG

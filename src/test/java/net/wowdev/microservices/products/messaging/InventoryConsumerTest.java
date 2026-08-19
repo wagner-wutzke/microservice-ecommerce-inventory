@@ -1,0 +1,17 @@
+package net.wowdev.microservices.products.messaging;
+
+import net.wowdev.microservice.ecommerce.dto.InventoryDTO;
+import net.wowdev.microservice.ecommerce.entity.InventoryChangeType;
+import org.junit.jupiter.api.Test;
+
+import java.util.UUID;
+
+class InventoryConsumerTest {
+    @Test
+    void consumesInventoryEvent() {
+        final InventoryDTO inventory = new InventoryDTO(UUID.randomUUID(), null, null, 10, 2,
+                InventoryChangeType.INVENTORY_INCREASE, null, null);
+
+        new InventoryConsumer().consume(inventory);
+    }
+}

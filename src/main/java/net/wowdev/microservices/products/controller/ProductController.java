@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import net.wowdev.microservice.ecommerce.dto.ProductDTO;
-import net.wowdev.microservices.products.service.ProductService;
+import net.wowdev.microservices.products.service.ProductServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,9 +18,9 @@ import java.util.UUID;
 @RequestMapping("/api/v1/products")
 public class ProductController {
 
-    private final ProductService service;
+    private final ProductServiceImpl service;
 
-    public ProductController(final ProductService service) {
+    public ProductController(final ProductServiceImpl service) {
         this.service = service;
     }
 

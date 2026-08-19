@@ -13,8 +13,8 @@
     <groupId>net.wowdev.microservice.ecommerce</groupId>
     <artifactId>products-service</artifactId>
     <version>1.0.0</version>
-    <name>products-service</name>
-    <description>Product REST and Kafka microservice</description>
+    <name>ecommerce-products-service</name>
+    <description>Product &amp; Inventory REST and Kafka microservice</description>
 
     <properties>
         <java.version>21</java.version>
@@ -79,5 +79,29 @@
             <artifactId>spring-kafka-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin.external.google</groupId>
+            <artifactId>android-json</artifactId>
+            <version>0.0.20131108.vaadin1</version>
+        </dependency>
     </dependencies>
+
+    <build>
+      <plugins>
+          <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                  <annotationProcessorPaths>
+                      <path>
+                          <groupId>org.projectlombok</groupId>
+                          <artifactId>lombok</artifactId>
+                          <version>${lombok.version}</version>
+                      </path>
+                  </annotationProcessorPaths>
+              </configuration>
+          </plugin>
+      </plugins>
+    </build>
+
 </project>

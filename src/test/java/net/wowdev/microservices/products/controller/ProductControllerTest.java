@@ -1,18 +1,20 @@
 package net.wowdev.microservices.products.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import java.time.Instant;
-import java.util.UUID;
 import net.wowdev.microservice.ecommerce.dto.ProductDTO;
-import net.wowdev.microservices.products.service.ProductService;
+import net.wowdev.microservices.products.service.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.PageImpl;
-import java.util.List;
 import org.springframework.http.HttpStatus;
 
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 class ProductControllerTest {
-    private final ProductService service = mock(ProductService.class);
+    private final ProductServiceImpl service = mock(ProductServiceImpl.class);
     private final ProductController controller = new ProductController(service);
     private final UUID id = UUID.randomUUID();
     private final Instant timestamp = Instant.parse("2026-01-01T00:00:00Z");

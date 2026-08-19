@@ -3,6 +3,7 @@ package net.wowdev.microservices.products.controller;
 import java.net.URI;
 import java.util.stream.Collectors;
 import net.wowdev.microservices.products.service.ProductNotFoundException;
+import net.wowdev.microservices.products.service.InventoryNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +12,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(InventoryNotFoundException.class)
+    public ProblemDetail inventoryNotFound(final InventoryNotFoundException exception) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     public ProblemDetail notFound(final ProductNotFoundException exception) {
         final ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
