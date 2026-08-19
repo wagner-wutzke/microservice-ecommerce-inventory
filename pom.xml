@@ -18,9 +18,9 @@
 
     <properties>
         <java.version>21</java.version>
-        <avro.version>1.12.1</avro.version>
         <confluent.version>7.6.1</confluent.version>
         <jacoco.version>0.8.13</jacoco.version>
+        <jackson.jsr310.version>2.20.1</jackson.jsr310.version>
     </properties>
 
     <repositories>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>2.20.1</version>
+            <version>${jackson.jsr310.version}</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
