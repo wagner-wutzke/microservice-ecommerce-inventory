@@ -1,3 +1,8 @@
+---
+
+
+---
+
 1. Create an Inventory REST API with a new InventoryController, its service and persistence layers.
 2. Inventory GET methods are always having an productId filter parameter.
 3. Add a DELETE endpoint filtered by Inventory Id for rolling back failed transactions.
