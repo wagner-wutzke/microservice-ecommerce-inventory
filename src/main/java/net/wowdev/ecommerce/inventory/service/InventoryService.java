@@ -1,11 +1,10 @@
 package net.wowdev.ecommerce.inventory.service;
 
+import java.util.UUID;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.dto.OrderDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 public interface InventoryService {
 

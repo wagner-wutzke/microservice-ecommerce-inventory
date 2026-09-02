@@ -1,5 +1,7 @@
 package net.wowdev.ecommerce.inventory.service;
 
+import java.time.Instant;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
@@ -12,9 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @Slf4j

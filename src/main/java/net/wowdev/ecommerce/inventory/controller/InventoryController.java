@@ -3,15 +3,14 @@ package net.wowdev.ecommerce.inventory.controller;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import java.net.URI;
+import java.util.UUID;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.inventory.service.InventoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
-import java.util.UUID;
 
 @RestController
 @Validated

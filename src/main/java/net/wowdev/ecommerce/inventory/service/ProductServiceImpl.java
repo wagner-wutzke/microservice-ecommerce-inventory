@@ -1,5 +1,7 @@
 package net.wowdev.ecommerce.inventory.service;
 
+import java.time.Instant;
+import java.util.UUID;
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
 import net.wowdev.ecommerce.domain.entity.ProductEntity;
 import net.wowdev.ecommerce.domain.mapper.ProductMapper;
@@ -10,9 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
-import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {

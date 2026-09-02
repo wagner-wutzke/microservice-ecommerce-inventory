@@ -1,13 +1,12 @@
 package net.wowdev.ecommerce.inventory.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.UUID;
 import net.wowdev.ecommerce.inventory.service.InventoryNotFoundException;
 import net.wowdev.ecommerce.inventory.service.ProductNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class ApiExceptionHandlerTest {
     private final ApiExceptionHandler handler = new ApiExceptionHandler();
