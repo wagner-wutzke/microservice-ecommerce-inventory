@@ -4,31 +4,27 @@ spring:
   application:
     name: products-service
   datasource:
-    url: jdbc:h2:file:./data/products-db
+    url: jdbc:h2:file:./data/inventory-db
     driver-class-name: org.h2.Driver
     username: sa
     password:
-  sql:
-    init:
-      mode: always
   jpa:
-    hibernate:
-      ddl-auto: create
-    defer-datasource-initialization: true
+    hibernate.ddl-auto: update
     open-in-view: false
     show-sql: false
-  h2:
-    console:
-      enabled: true # ${H2_CONSOLE_ENABLED:true}
+    defer-datasource-initialization: true
+
+  sql.init.mode: always
+  h2.console.enabled: ${H2_CONSOLE_ENABLED:true}
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP:products-events-consumer}
+      group-id: ${KAFKA_CONSUMER_GROUP:inventory-events-group.v1}
       properties:
-        spring.json.trusted.packages: "net.wowdev.ecommerce.domain.dto"
+        spring.json.trusted.packages: "net.wowdev.ecommerce.domain.events"
 
     producer:
-
       # Strict idempotence. NOTE: Kafka rejects `enable.idempotence=true` together
       # with acks=1 (ConfigException at producer start) — the broker cannot
       # deduplicate without full ISR acknowledgement. acks=all is therefore
@@ -38,17 +34,18 @@ spring:
       properties:
         enable.idempotence: true
         max.in.flight.requests.per.connection: 5
-        # Reject records that do not match the registered writer schema.
         delivery.timeout.ms: 30000
         request.timeout.ms: 10000
         linger.ms: 0
 
 app:
   kafka:
-    product-changes-topic: ${KAFKA_PRODUCT_CHANGES_TOPIC:product-changes-topic.v1}
-    inventory-changes-topic: ${KAFKA_INVENTORY_CHANGES_TOPIC:inventory-changes-topic.v1}
+    order-events-topic: ${KAFKA_ORDER_EVENTS_TOPIC:order-events-topic.v1}
+    payment-events-topic: ${KAFKA_PAYMENT_EVENTS_TOPIC:payment-events-topic.v1}
+    customer-events-topic: ${KAFKA_CUSTOMER_EVENTS_TOPIC:customer-events-topic.v1}
+    inventory-events-topic: ${KAFKA_INVENTORY_EVENTS_TOPIC:inventory-events-topic.v1}
 
 logging:
   level:
-    net.wowdev.microservices.products: DEBUG
-    org.hibernate.orm.jdbc.bind: DEBUG
+    net.wowdev.ecommerce.inventory: DEBUG
+    org.hibernate.orm.jdbc.bind: INFO

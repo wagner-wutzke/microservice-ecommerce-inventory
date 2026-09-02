@@ -100,9 +100,11 @@ equivalent for 404 and other errors. Validate page parameters and test valid, in
 
 ## 5. H2 Database
 
-Configure local H2 as file-based (for example `jdbc:h2:file:./data/${domain_object_lower}s-db`), expose `/h2-console`
+- Configure local H2 as file-based (for example `jdbc:h2:file:./data/${domain_object_lower}s-db`), expose `/h2-console`
 only as appropriate for local development, disable SQL logging by default, and set `server.port` with an environment
 override. Keep secrets out of source control.
+- Define a `PersistenceConfig` class with an `@EnableJpaAuditing` annotation.
+- Add the annotation `@EntityScan(basePackages = "net.wowdev.ecommerce.domain.entity")` tp the main application class.
 
 ## 6. Code formatting requirements
 

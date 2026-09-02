@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>net.wowdev.ecommerce</groupId>
-    <artifactId>products-service</artifactId>
+    <artifactId>inventory-service</artifactId>
     <version>1.0.0</version>
-    <name>products-service</name>
+    <name>inventory-service</name>
     <description>Product &amp; Inventory REST and Kafka microservice</description>
 
     <properties>
@@ -68,7 +68,7 @@
         <dependency>
             <groupId>net.wowdev.ecommerce</groupId>
             <artifactId>domain</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Test dependencies -->
