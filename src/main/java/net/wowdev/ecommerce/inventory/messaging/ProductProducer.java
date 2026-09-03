@@ -14,7 +14,7 @@ public class ProductProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${app.kafka.inventory-events-topic}")
+    @Value("${app.kafka.inventory-topic}")
     private String topic;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

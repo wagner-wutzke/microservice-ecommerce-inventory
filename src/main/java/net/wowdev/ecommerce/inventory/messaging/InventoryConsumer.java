@@ -2,9 +2,8 @@ package net.wowdev.ecommerce.inventory.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.wowdev.ecommerce.domain.events.OrderCreatedEvent;
-import net.wowdev.ecommerce.domain.events.PaymentCompletedEvent;
-import net.wowdev.ecommerce.inventory.service.OrderReplicationService;
+import net.wowdev.ecommerce.domain.events.OrderProcessingStartedEvent;
+import net.wowdev.ecommerce.inventory.service.InventoryService;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -15,22 +14,21 @@ import org.springframework.stereotype.Component;
 @KafkaListener(
     groupId = "${spring.kafka.consumer.group-id}",
     topics = {
-      "${app.kafka.order-events-topic}",
-      "${app.kafka.payment-events-topic}"
+      "${app.kafka.orders-topic}",
+      "${app.kafka.customers-topic}"
     },
     containerFactory = "kafkaListenerContainerFactory")
 public class InventoryConsumer {
 
-  private final OrderReplicationService orderReplicationService;
+  private final InventoryService inventoryService;
 
   @KafkaHandler
-  public void consume(final PaymentCompletedEvent event) {
-    log.debug(">>>> Processing PaymentCompletedEvent...");
-  }
-
-  @KafkaHandler
-  public void consume(final OrderCreatedEvent event) {
-    log.debug(">>>> Processing OrderCreatedEvent...");
-    orderReplicationService.replicate(event.orderDTO());
+  public void consume(final OrderProcessingStartedEvent event) {
+    log.debug(">>>> Processing OrderProcessingStartedEvent: {}", event.eventId());
+    try {
+      inventoryService.process(event.orderDTO());
+    } catch (Exception e) {
+      log.error("Error while processing OrderProcessingStartedEvent: {}", event.eventId(), e);
+    }
   }
 }

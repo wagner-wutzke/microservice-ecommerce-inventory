@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductConsumer {
     @KafkaListener(
-            topics = "${app.kafka.inventory-events-topic}",
+            topics = "${app.kafka.inventory-topic}",
             containerFactory = "kafkaListenerContainerFactory")
     public void consume(final ProductDTO product) {
         // The consumer is intentionally idempotent: downstream handling can be added without changing the contract.

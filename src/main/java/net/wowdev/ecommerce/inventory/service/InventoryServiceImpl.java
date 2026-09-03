@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.dto.OrderDTO;
 import net.wowdev.ecommerce.domain.entity.InventoryEntity;
+import net.wowdev.ecommerce.domain.events.InventoryUpdatedEvent;
 import net.wowdev.ecommerce.domain.mapper.InventoryMapper;
+import net.wowdev.ecommerce.inventory.messaging.InventoryProducer;
 import net.wowdev.ecommerce.inventory.repository.InventoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class InventoryServiceImpl implements InventoryService {
 
   private final InventoryRepository repository;
+
+  private final InventoryProducer producer;
 
   @Transactional(readOnly = true)
   @Override
@@ -61,8 +65,28 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  @Transactional
   public void process(OrderDTO orderDTO) {
     // TODO check product availability for each order line. If available,
     //  create new row entry reducing amount from last product entries.
+
+    log.debug(">>>> Processing inventory update for order: {}", orderDTO.getId());
+    log.debug(">>>> Inventory update logic still need to be implemented...");
+
+    orderDTO
+        .getOrderLines()
+        .forEach(
+            orderLine -> {
+              //TODO update product inventory
+              log.debug(">>>> Updating inventory for product: {}", orderLine.getProductId());
+            });
+
+    producer.publish(
+        new InventoryUpdatedEvent(
+            UUID.randomUUID(),
+            orderDTO.getId().toString(),
+            orderDTO,
+            null,
+            null));
   }
 }
