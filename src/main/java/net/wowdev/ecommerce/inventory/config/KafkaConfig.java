@@ -66,10 +66,7 @@ public class KafkaConfig {
     // Exactly-once-per-partition semantics: the broker deduplicates retried batches
     // using the producer id + sequence number.
     config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, idempotence);
-
-    // with acks=0 or acks=1 because it cannot deduplicate without full ISR ack.
     config.put(ProducerConfig.RETRIES_CONFIG, retries);
-
     config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
     config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
@@ -99,7 +96,6 @@ public class KafkaConfig {
     final var factory = new ConcurrentKafkaListenerContainerFactory<String, Object>();
     factory.setConsumerFactory(orderConsumerFactory);
     factory.setConcurrency(3);
-
     factory.setCommonErrorHandler(
         new DefaultErrorHandler(
             new DeadLetterPublishingRecoverer(kafkaTemplate), new FixedBackOff(2000L, retries)));

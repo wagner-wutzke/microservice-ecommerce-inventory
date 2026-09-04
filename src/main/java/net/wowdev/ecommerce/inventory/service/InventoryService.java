@@ -8,16 +8,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface InventoryService {
 
-    InventoryDTO findById(UUID id, UUID productId);
+  public final String ORIGIN_SERVICE = "INVENTORY-SERVICE";
 
-    @Transactional(readOnly = true)
-    Page<InventoryDTO> findAll(UUID productId, int page, int pageSize);
+  InventoryDTO findById(UUID id, UUID productId);
 
-    @Transactional
-    InventoryDTO create(InventoryDTO inventoryDTO);
+  @Transactional(readOnly = true)
+  Page<InventoryDTO> findAll(UUID productId, int page, int pageSize);
 
-    @Transactional
-    void delete(UUID id);
+  @Transactional
+  InventoryDTO create(InventoryDTO inventoryDTO);
 
-    void process(OrderDTO orderDTO);
+  @Transactional
+  void delete(UUID id);
+
+  void process(OrderDTO orderDTO);
+
+  void compensate(OrderDTO orderDTO, String reason);
 }

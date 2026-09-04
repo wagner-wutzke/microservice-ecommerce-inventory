@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.dto.OrderDTO;
 import net.wowdev.ecommerce.domain.entity.InventoryEntity;
+import net.wowdev.ecommerce.domain.events.InventoryUpdateFailedEvent;
 import net.wowdev.ecommerce.domain.events.InventoryUpdatedEvent;
 import net.wowdev.ecommerce.domain.mapper.InventoryMapper;
 import net.wowdev.ecommerce.inventory.messaging.InventoryProducer;
@@ -70,15 +71,15 @@ public class InventoryServiceImpl implements InventoryService {
     // TODO check product availability for each order line. If available,
     //  create new row entry reducing amount from last product entries.
 
-    log.debug(">>>> Processing inventory update for order: {}", orderDTO.getId());
-    log.debug(">>>> Inventory update logic still need to be implemented...");
+    log.debug(">> Processing inventory update for order: {}", orderDTO.getId());
+    log.debug(">> Inventory update logic still need to be implemented...");
 
     orderDTO
         .getOrderLines()
         .forEach(
             orderLine -> {
               //TODO update product inventory
-              log.debug(">>>> Updating inventory for product: {}", orderLine.getProductId());
+              log.debug(">> Updating inventory for product: {}", orderLine.getProductId());
             });
 
     producer.publish(
@@ -86,7 +87,27 @@ public class InventoryServiceImpl implements InventoryService {
             UUID.randomUUID(),
             orderDTO.getId().toString(),
             orderDTO,
-            null,
-            null));
+            Instant.now(),
+            InventoryService.ORIGIN_SERVICE));
+  }
+
+  @Override
+  @Transactional
+  public void compensate(OrderDTO orderDTO, final String reason) {
+    orderDTO
+        .getOrderLines()
+        .forEach(
+            orderLine -> {
+              //TODO update product inventory
+              log.debug(">> Compensating inventory for product: {}", orderLine.getProductId());
+            });
+    producer.publish(
+        new InventoryUpdateFailedEvent(
+            UUID.randomUUID(),
+            orderDTO.getId().toString(),
+            orderDTO,
+            reason,
+            Instant.now(),
+            InventoryService.ORIGIN_SERVICE));
   }
 }
