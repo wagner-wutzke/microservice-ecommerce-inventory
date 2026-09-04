@@ -40,4 +40,9 @@ public class InventoryConsumer {
         event.eventId());
     inventoryService.compensate(event.orderDTO(), event.reason());
   }
+
+  @KafkaHandler(isDefault = true)
+  public void handleUnknown(Object event) {
+    log.debug(">> Received an unmapped event of type {}", event.getClass().getSimpleName());
+  }
 }
