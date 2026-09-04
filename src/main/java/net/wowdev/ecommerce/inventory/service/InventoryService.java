@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface InventoryService {
 
-  public final String ORIGIN_SERVICE = "INVENTORY-SERVICE";
+  String ORIGIN_SERVICE = "INVENTORY-SERVICE";
 
   InventoryDTO findById(UUID id, UUID productId);
 
