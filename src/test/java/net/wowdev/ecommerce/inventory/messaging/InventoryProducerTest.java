@@ -28,12 +28,13 @@ class InventoryProducerTest {
     UUID id = UUID.randomUUID();
     InventoryUpdateFailedEvent event = new InventoryUpdateFailedEvent(id, "tx", new OrderDTO(), "reason", Instant.now(), InventoryService.ORIGIN_SERVICE);
     producer.publish(event);
-    verify(kafka).send("inventory", id.toString(), event);
+    verify(kafka).send("orders", id.toString(), event);
   }
 
   private InventoryProducer producer(KafkaTemplate<String, Object> kafka) {
     InventoryProducer producer = new InventoryProducer(kafka);
-    ReflectionTestUtils.setField(producer, "topic", "inventory");
+    ReflectionTestUtils.setField(producer, "inventoryTopic", "inventory");
+    ReflectionTestUtils.setField(producer, "ordersTopic", "orders");
     return producer;
   }
 }

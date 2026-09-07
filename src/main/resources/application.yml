@@ -1,5 +1,5 @@
 server:
-  port: ${APP_PORT:9300}
+  port: ${APP_PORT:9020}
 spring:
   application:
     name: products-service
