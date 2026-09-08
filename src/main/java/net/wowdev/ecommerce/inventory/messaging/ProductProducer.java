@@ -12,13 +12,13 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class ProductProducer {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+  private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${app.kafka.inventory-topic}")
-    private String topic;
+  @Value("${app.kafka.inventory-topic}")
+  private String topic;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void publish(final ProductDTO productDTO) {
-        kafkaTemplate.send(topic, productDTO.getId().toString(), productDTO);
-    }
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+  public void publish(final ProductDTO productDTO) {
+    kafkaTemplate.send(topic, productDTO.getId().toString(), productDTO);
+  }
 }

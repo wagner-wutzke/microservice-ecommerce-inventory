@@ -7,12 +7,14 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class ConfigurationTest {
-  @Test void configurationClassesCanBeConstructed() {
+  @Test
+  void configurationClassesCanBeConstructed() {
     assertThat(new DataReplicationConfig()).isNotNull();
     assertThat(new PersistenceConfig()).isNotNull();
   }
 
-  @Test void kafkaFactoriesContainConfiguredProperties() {
+  @Test
+  void kafkaFactoriesContainConfiguredProperties() {
     KafkaConfig config = new KafkaConfig();
     ReflectionTestUtils.setField(config, "bootstrapServers", "localhost:9092");
     ReflectionTestUtils.setField(config, "consumerGroup", "inventory");
@@ -29,8 +31,9 @@ class ConfigurationTest {
     assertThat(producerFactory).isNotNull();
     assertThat(consumerFactory).isNotNull();
     assertThat((Object) config.kafkaTemplate(config.producerFactory())).isNotNull();
-    ConcurrentKafkaListenerContainerFactory<String, Object> factory = config.kafkaListenerContainerFactory(
-        config.consumerFactory(), config.kafkaTemplate(config.producerFactory()));
+    ConcurrentKafkaListenerContainerFactory<String, Object> factory =
+        config.kafkaListenerContainerFactory(
+            config.consumerFactory(), config.kafkaTemplate(config.producerFactory()));
     assertThat(factory.getContainerProperties().getAckMode().name()).isEqualTo("RECORD");
     assertThat(ReflectionTestUtils.getField(factory, "commonErrorHandler")).isNotNull();
   }

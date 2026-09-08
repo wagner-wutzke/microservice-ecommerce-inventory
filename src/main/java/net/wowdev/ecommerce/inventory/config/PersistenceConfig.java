@@ -7,5 +7,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @EnableJpaAuditing
 @EnableJpaRepositories(basePackages = "net.wowdev.ecommerce.inventory.repository")
-public class PersistenceConfig {
-}
+public class PersistenceConfig {}

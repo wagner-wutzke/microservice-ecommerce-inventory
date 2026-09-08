@@ -11,23 +11,29 @@ import net.wowdev.ecommerce.inventory.service.InventoryService;
 import org.junit.jupiter.api.Test;
 
 class InventoryConsumerTest {
-  @Test void processesOrderStartedEvent() {
+  @Test
+  void processesOrderStartedEvent() {
     InventoryService service = mock(InventoryService.class);
     InventoryConsumer consumer = new InventoryConsumer(service);
     OrderDTO order = new OrderDTO();
-    consumer.consume(new OrderProcessingStartedEvent(UUID.randomUUID(), "tx", order, Instant.now(), "orders"));
+    consumer.consume(
+        new OrderProcessingStartedEvent(UUID.randomUUID(), "tx", order, Instant.now(), "orders"));
     verify(service).process(order);
   }
 
-  @Test void compensatesPaymentFailureEvent() {
+  @Test
+  void compensatesPaymentFailureEvent() {
     InventoryService service = mock(InventoryService.class);
     InventoryConsumer consumer = new InventoryConsumer(service);
     OrderDTO order = new OrderDTO();
-    consumer.consume(new PaymentFailedEvent(UUID.randomUUID(), "tx", order, "declined", Instant.now(), "payments"));
+    consumer.consume(
+        new PaymentFailedEvent(
+            UUID.randomUUID(), "tx", order, "declined", Instant.now(), "payments"));
     verify(service).compensate(order, "declined");
   }
 
-  @Test void acceptsUnknownEventWithoutDelegating() {
+  @Test
+  void acceptsUnknownEventWithoutDelegating() {
     InventoryService service = mock(InventoryService.class);
     new InventoryConsumer(service).handleUnknown("unknown");
     verifyNoInteractions(service);

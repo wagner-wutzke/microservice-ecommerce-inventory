@@ -18,21 +18,30 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.*;
 
 class InventoryServiceImplTest {
+  private final UUID id = UUID.randomUUID();
+  private final UUID productId = UUID.randomUUID();
   private InventoryRepository repository;
   private InventoryProducer producer;
   private InventoryServiceImpl service;
-  private final UUID id = UUID.randomUUID();
-  private final UUID productId = UUID.randomUUID();
 
-  @BeforeEach void setUp() {
+  @BeforeEach
+  void setUp() {
     repository = mock(InventoryRepository.class);
     producer = mock(InventoryProducer.class);
     service = new InventoryServiceImpl(repository, producer);
   }
 
   private InventoryEntity entity() {
-    return new InventoryEntity(id, productId, UUID.randomUUID(), 8, 2, 6,
-        InventoryChangeType.INVENTORY_INCREASE, Instant.now(), Instant.now());
+    return new InventoryEntity(
+        id,
+        productId,
+        UUID.randomUUID(),
+        8,
+        2,
+        6,
+        InventoryChangeType.INVENTORY_INCREASE,
+        Instant.now(),
+        Instant.now());
   }
 
   private OrderDTO order() {
@@ -45,34 +54,56 @@ class InventoryServiceImplTest {
     return order;
   }
 
-  @Test void findsProductScopedInventory() {
-    when(repository.findByIdAndProductId(id, productId)).thenReturn(java.util.Optional.of(entity()));
+  @Test
+  void findsProductScopedInventory() {
+    when(repository.findByIdAndProductId(id, productId))
+        .thenReturn(java.util.Optional.of(entity()));
     assertThat(service.findById(id, productId).getProductId()).isEqualTo(productId);
   }
 
-  @Test void missingInventoryThrows() {
+  @Test
+  void missingInventoryThrows() {
     when(repository.findByIdAndProductId(id, productId)).thenReturn(java.util.Optional.empty());
-    assertThatThrownBy(() -> service.findById(id, productId)).isInstanceOf(InventoryNotFoundException.class);
+    assertThatThrownBy(() -> service.findById(id, productId))
+        .isInstanceOf(InventoryNotFoundException.class);
   }
 
-  @Test void findsPageWithDescendingCreationSort() {
+  @Test
+  void findsPageWithDescendingCreationSort() {
     when(repository.findAllByProductId(eq(productId), any(Pageable.class)))
         .thenReturn(new PageImpl<>(java.util.List.of(entity())));
     assertThat(service.findAll(productId, 0, 10)).hasSize(1);
-    verify(repository).findAllByProductId(eq(productId), argThat(p -> p.getPageSize() == 10
-        && p.getSort().getOrderFor("createdAt").isDescending()));
+    verify(repository)
+        .findAllByProductId(
+            eq(productId),
+            argThat(
+                p -> p.getPageSize() == 10 && p.getSort().getOrderFor("createdAt").isDescending()));
   }
 
-  @Test void createsInventoryWithGeneratedIdentityAndTimestamps() {
+  @Test
+  void createsInventoryWithGeneratedIdentityAndTimestamps() {
     InventoryEntity saved = entity();
     when(repository.save(any())).thenReturn(saved);
-    InventoryDTO input = new InventoryDTO(null, productId, UUID.randomUUID(), 8, 2, 6,
-        InventoryChangeType.INVENTORY_INCREASE, null, null);
+    InventoryDTO input =
+        new InventoryDTO(
+            null,
+            productId,
+            UUID.randomUUID(),
+            8,
+            2,
+            6,
+            InventoryChangeType.INVENTORY_INCREASE,
+            null,
+            null);
     assertThat(service.create(input).getId()).isEqualTo(id);
-    verify(repository).save(argThat(e -> e.getId() != null && e.getCreatedAt() != null && e.getModifiedAt() != null));
+    verify(repository)
+        .save(
+            argThat(
+                e -> e.getId() != null && e.getCreatedAt() != null && e.getModifiedAt() != null));
   }
 
-  @Test void deletesExistingAndRejectsMissing() {
+  @Test
+  void deletesExistingAndRejectsMissing() {
     when(repository.existsById(id)).thenReturn(true);
     service.delete(id);
     verify(repository).deleteById(id);
@@ -80,17 +111,28 @@ class InventoryServiceImplTest {
     assertThatThrownBy(() -> service.delete(id)).isInstanceOf(InventoryNotFoundException.class);
   }
 
-  @Test void processesOrderAndPublishesUpdateEvent() {
+  @Test
+  void processesOrderAndPublishesUpdateEvent() {
     OrderDTO order = order();
     service.process(order);
-    verify(producer).publish(argThat((InventoryUpdatedEvent e) -> e.orderDTO().equals(order)
-        && e.origin().equals(InventoryService.ORIGIN_SERVICE)));
+    verify(producer)
+        .publish(
+            argThat(
+                (InventoryUpdatedEvent e) ->
+                    e.orderDTO().equals(order)
+                        && e.origin().equals(InventoryService.ORIGIN_SERVICE)));
   }
 
-  @Test void compensatesOrderWithReasonAndPublishesFailureEvent() {
+  @Test
+  void compensatesOrderWithReasonAndPublishesFailureEvent() {
     OrderDTO order = order();
     service.compensate(order, "payment failed");
-    verify(producer).publish(argThat((InventoryUpdateFailedEvent e) -> e.orderDTO().equals(order)
-        && e.reason().equals("payment failed") && e.origin().equals(InventoryService.ORIGIN_SERVICE)));
+    verify(producer)
+        .publish(
+            argThat(
+                (InventoryUpdateFailedEvent e) ->
+                    e.orderDTO().equals(order)
+                        && e.reason().equals("payment failed")
+                        && e.origin().equals(InventoryService.ORIGIN_SERVICE)));
   }
 }

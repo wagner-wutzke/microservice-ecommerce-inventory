@@ -13,20 +13,26 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class InventoryProducerTest {
-  @Test void publishesInventoryUpdatedEvent() {
+  @Test
+  void publishesInventoryUpdatedEvent() {
     KafkaTemplate<String, Object> kafka = mock(KafkaTemplate.class);
     InventoryProducer producer = producer(kafka);
     UUID id = UUID.randomUUID();
-    InventoryUpdatedEvent event = new InventoryUpdatedEvent(id, "tx", new OrderDTO(), Instant.now(), InventoryService.ORIGIN_SERVICE);
+    InventoryUpdatedEvent event =
+        new InventoryUpdatedEvent(
+            id, "tx", new OrderDTO(), Instant.now(), InventoryService.ORIGIN_SERVICE);
     producer.publish(event);
     verify(kafka).send("inventory", id.toString(), event);
   }
 
-  @Test void publishesInventoryUpdateFailedEvent() {
+  @Test
+  void publishesInventoryUpdateFailedEvent() {
     KafkaTemplate<String, Object> kafka = mock(KafkaTemplate.class);
     InventoryProducer producer = producer(kafka);
     UUID id = UUID.randomUUID();
-    InventoryUpdateFailedEvent event = new InventoryUpdateFailedEvent(id, "tx", new OrderDTO(), "reason", Instant.now(), InventoryService.ORIGIN_SERVICE);
+    InventoryUpdateFailedEvent event =
+        new InventoryUpdateFailedEvent(
+            id, "tx", new OrderDTO(), "reason", Instant.now(), InventoryService.ORIGIN_SERVICE);
     producer.publish(event);
     verify(kafka).send("orders", id.toString(), event);
   }

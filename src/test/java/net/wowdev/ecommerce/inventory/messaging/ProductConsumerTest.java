@@ -5,7 +5,8 @@ import net.wowdev.ecommerce.domain.dto.ProductDTO;
 import org.junit.jupiter.api.Test;
 
 class ProductConsumerTest {
-  @Test void consumesProductChange() {
+  @Test
+  void consumesProductChange() {
     ProductDTO product = new ProductDTO();
     product.setId(UUID.randomUUID());
     product.setName("item");

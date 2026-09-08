@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ProductConsumer {
-    @KafkaListener(
-            topics = "${app.kafka.inventory-topic}",
-            containerFactory = "kafkaListenerContainerFactory")
-    public void consume(final ProductDTO product) {
-        // The consumer is intentionally idempotent: downstream handling can be added without changing the contract.
-        log.info(">> Consumed product change event {}", product.toString());
-    }
+  @KafkaListener(
+      topics = "${app.kafka.inventory-topic}",
+      containerFactory = "kafkaListenerContainerFactory")
+  public void consume(final ProductDTO product) {
+    // The consumer is intentionally idempotent: downstream handling can be added without changing
+    // the contract.
+    log.info(">> Consumed product change event {}", product.toString());
+  }
 }

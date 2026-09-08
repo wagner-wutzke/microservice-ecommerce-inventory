@@ -11,14 +11,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
 class ProductControllerTest {
+  private final UUID id = UUID.randomUUID();
   private ProductServiceImpl service;
   private ProductController controller;
-  private final UUID id = UUID.randomUUID();
 
-  @BeforeEach void setUp() { service = mock(ProductServiceImpl.class); controller = new ProductController(service); }
+  @BeforeEach
+  void setUp() {
+    service = mock(ProductServiceImpl.class);
+    controller = new ProductController(service);
+  }
 
-  @Test void delegatesAllEndpoints() {
-    ProductDTO dto = new ProductDTO(); dto.setId(id);
+  @Test
+  void delegatesAllEndpoints() {
+    ProductDTO dto = new ProductDTO();
+    dto.setId(id);
     when(service.findById(id)).thenReturn(dto);
     when(service.findAll(1, 9)).thenReturn(new PageImpl<>(java.util.List.of(dto)));
     when(service.create(dto)).thenReturn(dto);

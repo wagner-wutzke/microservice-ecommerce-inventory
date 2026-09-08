@@ -7,17 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface ProductService {
 
-    ProductDTO findById(UUID id);
+  ProductDTO findById(UUID id);
 
-    @Transactional(readOnly = true)
-    Page<ProductDTO> findAll(int page, int pageSize);
+  @Transactional(readOnly = true)
+  Page<ProductDTO> findAll(int page, int pageSize);
 
-    @Transactional
-    ProductDTO create(ProductDTO productDTO);
+  @Transactional
+  ProductDTO create(ProductDTO productDTO);
 
-    @Transactional
-    ProductDTO update(UUID id, ProductDTO productDTO);
+  @Transactional
+  ProductDTO update(UUID id, ProductDTO productDTO);
 
-    @Transactional
-    void delete(UUID id);
+  @Transactional
+  void delete(UUID id);
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InventoryRepository extends JpaRepository<InventoryEntity, UUID> {
-    Optional<InventoryEntity> findByIdAndProductId(UUID id, UUID productId);
+  Optional<InventoryEntity> findByIdAndProductId(UUID id, UUID productId);
 
-    Page<InventoryEntity> findAllByProductId(UUID productId, Pageable pageable);
+  Page<InventoryEntity> findAllByProductId(UUID productId, Pageable pageable);
 }

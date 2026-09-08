@@ -9,7 +9,8 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class ProductProducerTest {
-  @Test void publishesProductUsingProductIdAsKey() {
+  @Test
+  void publishesProductUsingProductIdAsKey() {
     KafkaTemplate<String, Object> kafka = mock(KafkaTemplate.class);
     ProductProducer producer = new ProductProducer(kafka);
     ReflectionTestUtils.setField(producer, "topic", "products");

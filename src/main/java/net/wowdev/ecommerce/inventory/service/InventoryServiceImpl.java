@@ -78,17 +78,11 @@ public class InventoryServiceImpl implements InventoryService {
         .getOrderLines()
         .forEach(
             orderLine -> {
-              //TODO update product inventory
+              // TODO update product inventory
               log.debug(">> Updating inventory for product: {}", orderLine.getProductId());
             });
 
-    producer.publish(
-        new InventoryUpdatedEvent(
-            UUID.randomUUID(),
-            orderDTO.getId().toString(),
-            orderDTO,
-            Instant.now(),
-            InventoryService.ORIGIN_SERVICE));
+    publishInventoryUpdatedEvent(orderDTO);
   }
 
   @Override
@@ -98,9 +92,23 @@ public class InventoryServiceImpl implements InventoryService {
         .getOrderLines()
         .forEach(
             orderLine -> {
-              //TODO update product inventory
+              // TODO update product inventory
               log.debug(">> Compensating inventory for product: {}", orderLine.getProductId());
             });
+    publishInventoryUpdateFailedEvent(orderDTO, reason);
+  }
+
+  private void publishInventoryUpdatedEvent(OrderDTO orderDTO) {
+    producer.publish(
+        new InventoryUpdatedEvent(
+            UUID.randomUUID(),
+            orderDTO.getId().toString(),
+            orderDTO,
+            Instant.now(),
+            InventoryService.ORIGIN_SERVICE));
+  }
+
+  private void publishInventoryUpdateFailedEvent(OrderDTO orderDTO, String reason) {
     producer.publish(
         new InventoryUpdateFailedEvent(
             UUID.randomUUID(),

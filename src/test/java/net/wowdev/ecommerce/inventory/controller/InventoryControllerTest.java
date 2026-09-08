@@ -13,25 +13,33 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 
 class InventoryControllerTest {
-  private InventoryService service;
-  private InventoryController controller;
   private final UUID id = UUID.randomUUID();
   private final UUID productId = UUID.randomUUID();
+  private InventoryService service;
+  private InventoryController controller;
 
-  @BeforeEach void setUp() { service = mock(InventoryService.class); controller = new InventoryController(service); }
+  @BeforeEach
+  void setUp() {
+    service = mock(InventoryService.class);
+    controller = new InventoryController(service);
+  }
 
-  @Test void delegatesReadsAndCreate() {
-    InventoryDTO dto = new InventoryDTO(); dto.setId(id);
+  @Test
+  void delegatesReadsAndCreate() {
+    InventoryDTO dto = new InventoryDTO();
+    dto.setId(id);
     when(service.findById(id, productId)).thenReturn(dto);
     when(service.findAll(productId, 2, 7)).thenReturn(new PageImpl<>(java.util.List.of(dto)));
     when(service.create(dto)).thenReturn(dto);
     assertThat(controller.findById(id, productId)).isSameAs(dto);
     assertThat(controller.findAll(productId, 2, 7).getContent()).containsExactly(dto);
     assertThat(controller.create(dto).getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    assertThat(controller.create(dto).getHeaders().getLocation().toString()).endsWith(id.toString());
+    assertThat(controller.create(dto).getHeaders().getLocation().toString())
+        .endsWith(id.toString());
   }
 
-  @Test void deleteReturnsNoContent() {
+  @Test
+  void deleteReturnsNoContent() {
     assertThat(controller.delete(id).getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     verify(service).delete(id);
   }

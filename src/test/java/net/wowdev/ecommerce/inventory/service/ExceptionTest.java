@@ -6,7 +6,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class ExceptionTest {
-  @Test void messagesIdentifyMissingResources() {
+  @Test
+  void messagesIdentifyMissingResources() {
     UUID id = UUID.randomUUID();
     assertThat(new InventoryNotFoundException(id).getMessage()).contains(id.toString());
     assertThat(new ProductNotFoundException(id).getMessage()).contains(id.toString());
