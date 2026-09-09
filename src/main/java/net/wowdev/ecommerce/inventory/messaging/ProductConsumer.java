@@ -2,12 +2,14 @@ package net.wowdev.ecommerce.inventory.messaging;
 
 import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.ProductDTO;
+import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class ProductConsumer {
+
   @KafkaListener(
       topics = "${app.kafka.inventory-topic}",
       containerFactory = "kafkaListenerContainerFactory")
@@ -15,5 +17,10 @@ public class ProductConsumer {
     // The consumer is intentionally idempotent: downstream handling can be added without changing
     // the contract.
     log.info(">> Consumed product change event {}", product.toString());
+  }
+
+  @KafkaHandler(isDefault = true)
+  public void handleUnknown(Object event) {
+    //log.debug(">> Received an unmapped event of type {}", event.getClass().getSimpleName());
   }
 }
