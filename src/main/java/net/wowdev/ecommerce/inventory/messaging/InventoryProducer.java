@@ -2,8 +2,8 @@ package net.wowdev.ecommerce.inventory.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.wowdev.ecommerce.domain.events.InventoryUpdateFailedEvent;
-import net.wowdev.ecommerce.domain.events.InventoryUpdatedEvent;
+import net.wowdev.ecommerce.domain.events.InventoryCompleted;
+import net.wowdev.ecommerce.domain.events.InventoryFailed;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -24,16 +24,15 @@ public class InventoryProducer {
   private String ordersTopic;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
-  public void publish(final InventoryUpdatedEvent event) {
-    log.debug(
-        ">> Publishing InventoryUpdatedEvent {} on topic {}", event.eventId(), inventoryTopic);
+  public void publish(final InventoryCompleted event) {
+    log.debug(">> Publishing InventoryCompleted event {} on topic {}", event.eventId(), inventoryTopic);
     kafkaTemplate.send(inventoryTopic, event.eventId().toString(), event);
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
-  public void publish(InventoryUpdateFailedEvent event) {
+  public void publish(InventoryFailed event) {
     log.debug(
-        ">> Publishing InventoryUpdateFailedEvent {} on topic {}", event.eventId(), ordersTopic);
+        ">> Publishing InventoryFailed event {} on topic {}", event.eventId(), ordersTopic);
     kafkaTemplate.send(ordersTopic, event.eventId().toString(), event);
   }
 }

@@ -118,7 +118,7 @@ class InventoryServiceImplTest {
     verify(producer)
         .publish(
             argThat(
-                (InventoryUpdatedEvent e) ->
+                (InventoryCompleted e) ->
                     e.orderDTO().equals(order)
                         && e.origin().equals(InventoryService.ORIGIN_SERVICE)));
   }
@@ -130,7 +130,7 @@ class InventoryServiceImplTest {
     verify(producer)
         .publish(
             argThat(
-                (InventoryUpdateFailedEvent e) ->
+                (InventoryFailed e) ->
                     e.orderDTO().equals(order)
                         && e.reason().equals("payment failed")
                         && e.origin().equals(InventoryService.ORIGIN_SERVICE)));

@@ -2,8 +2,8 @@ package net.wowdev.ecommerce.inventory.messaging;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.wowdev.ecommerce.domain.events.OrderProcessingStartedEvent;
-import net.wowdev.ecommerce.domain.events.PaymentFailedEvent;
+import net.wowdev.ecommerce.domain.events.OrderCreated;
+import net.wowdev.ecommerce.domain.events.PaymentFailed;
 import net.wowdev.ecommerce.inventory.service.InventoryService;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -25,18 +25,18 @@ public class InventoryConsumer {
   private final InventoryService inventoryService;
 
   @KafkaHandler
-  public void consume(final OrderProcessingStartedEvent event) {
+  public void consume(final OrderCreated event) {
     log.debug(
-        ">> Processing OrderProcessingStartedEvent sent by {}. Event id: {}",
+        ">> Processing OrderCreated sent by {}. Event id: {}",
         event.origin(),
         event.eventId());
     inventoryService.process(event.orderDTO());
   }
 
   @KafkaHandler
-  public void consume(final PaymentFailedEvent event) {
+  public void consume(final PaymentFailed event) {
     log.debug(
-        ">> Processing PaymentFailedEvent sent by {}. Event id: {}",
+        ">> Processing PaymentFailed event sent by {}. Event id: {}",
         event.origin(),
         event.eventId());
     inventoryService.compensate(event.orderDTO(), event.reason());

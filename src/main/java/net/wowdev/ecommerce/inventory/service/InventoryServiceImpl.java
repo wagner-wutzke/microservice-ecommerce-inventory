@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.dto.OrderDTO;
 import net.wowdev.ecommerce.domain.entity.InventoryEntity;
-import net.wowdev.ecommerce.domain.events.InventoryUpdateFailedEvent;
-import net.wowdev.ecommerce.domain.events.InventoryUpdatedEvent;
+import net.wowdev.ecommerce.domain.events.InventoryCompleted;
+import net.wowdev.ecommerce.domain.events.InventoryFailed;
 import net.wowdev.ecommerce.domain.mapper.InventoryMapper;
 import net.wowdev.ecommerce.inventory.messaging.InventoryProducer;
 import net.wowdev.ecommerce.inventory.repository.InventoryRepository;
@@ -81,8 +81,7 @@ public class InventoryServiceImpl implements InventoryService {
               // TODO update product inventory
               log.debug(">> Updating inventory for product: {}", orderLine.getProductId());
             });
-
-    publishInventoryUpdatedEvent(orderDTO);
+    publishInventoryCompletedEvent(orderDTO);
   }
 
   @Override
@@ -95,12 +94,12 @@ public class InventoryServiceImpl implements InventoryService {
               // TODO update product inventory
               log.debug(">> Compensating inventory for product: {}", orderLine.getProductId());
             });
-    publishInventoryUpdateFailedEvent(orderDTO, reason);
+    publishInventoryFailedEvent(orderDTO, reason);
   }
 
-  private void publishInventoryUpdatedEvent(OrderDTO orderDTO) {
+  private void publishInventoryCompletedEvent(OrderDTO orderDTO) {
     producer.publish(
-        new InventoryUpdatedEvent(
+        new InventoryCompleted(
             UUID.randomUUID(),
             orderDTO.getId().toString(),
             orderDTO,
@@ -108,9 +107,9 @@ public class InventoryServiceImpl implements InventoryService {
             InventoryService.ORIGIN_SERVICE));
   }
 
-  private void publishInventoryUpdateFailedEvent(OrderDTO orderDTO, String reason) {
+  private void publishInventoryFailedEvent(OrderDTO orderDTO, String reason) {
     producer.publish(
-        new InventoryUpdateFailedEvent(
+        new InventoryFailed(
             UUID.randomUUID(),
             orderDTO.getId().toString(),
             orderDTO,

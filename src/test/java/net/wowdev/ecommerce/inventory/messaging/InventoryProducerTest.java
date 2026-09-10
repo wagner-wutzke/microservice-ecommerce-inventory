@@ -5,8 +5,8 @@ import static org.mockito.Mockito.*;
 import java.time.Instant;
 import java.util.UUID;
 import net.wowdev.ecommerce.domain.dto.OrderDTO;
-import net.wowdev.ecommerce.domain.events.InventoryUpdateFailedEvent;
-import net.wowdev.ecommerce.domain.events.InventoryUpdatedEvent;
+import net.wowdev.ecommerce.domain.events.InventoryCompleted;
+import net.wowdev.ecommerce.domain.events.InventoryFailed;
 import net.wowdev.ecommerce.inventory.service.InventoryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -14,12 +14,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 class InventoryProducerTest {
   @Test
-  void publishesInventoryUpdatedEvent() {
+  void publishesInventoryCompletedEvent() {
     KafkaTemplate<String, Object> kafka = mock(KafkaTemplate.class);
     InventoryProducer producer = producer(kafka);
     UUID id = UUID.randomUUID();
-    InventoryUpdatedEvent event =
-        new InventoryUpdatedEvent(
+    InventoryCompleted event =
+        new InventoryCompleted(
             id, "tx", new OrderDTO(), Instant.now(), InventoryService.ORIGIN_SERVICE);
     producer.publish(event);
     verify(kafka).send("inventory", id.toString(), event);
@@ -30,8 +30,8 @@ class InventoryProducerTest {
     KafkaTemplate<String, Object> kafka = mock(KafkaTemplate.class);
     InventoryProducer producer = producer(kafka);
     UUID id = UUID.randomUUID();
-    InventoryUpdateFailedEvent event =
-        new InventoryUpdateFailedEvent(
+    InventoryFailed event =
+        new InventoryFailed(
             id, "tx", new OrderDTO(), "reason", Instant.now(), InventoryService.ORIGIN_SERVICE);
     producer.publish(event);
     verify(kafka).send("orders", id.toString(), event);
