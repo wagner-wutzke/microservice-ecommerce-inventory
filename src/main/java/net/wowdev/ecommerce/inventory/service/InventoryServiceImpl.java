@@ -12,6 +12,7 @@ import net.wowdev.ecommerce.domain.events.InventoryFailed;
 import net.wowdev.ecommerce.domain.mapper.InventoryMapper;
 import net.wowdev.ecommerce.inventory.messaging.InventoryProducer;
 import net.wowdev.ecommerce.inventory.repository.InventoryRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,6 +27,9 @@ public class InventoryServiceImpl implements InventoryService {
   private final InventoryRepository repository;
 
   private final InventoryProducer producer;
+
+  @Value("${app.service.inventory.failing}")
+  private boolean failsWhenRunning;
 
   @Transactional(readOnly = true)
   @Override
@@ -70,10 +74,17 @@ public class InventoryServiceImpl implements InventoryService {
   public void process(OrderDTO orderDTO) {
     // TODO check product availability for each order line. If available,
     //  create new row entry reducing amount from last product entries.
+    try {
+      if (failsWhenRunning) {
+        throw new RuntimeException(
+            "Product " + orderDTO.getOrderLines().getFirst().getProductId() + " is out of stock.");
+      }
+    } catch (RuntimeException e) {
+      log.debug(
+          ">> Inventory update for order {} failed. Reason: {}", orderDTO.getId(), e.getMessage());
+    }
 
     log.debug(">> Processing inventory update for order: {}", orderDTO.getId());
-    log.debug(">> Inventory update logic still need to be implemented...");
-
     orderDTO
         .getOrderLines()
         .forEach(
@@ -116,5 +127,16 @@ public class InventoryServiceImpl implements InventoryService {
             reason,
             Instant.now(),
             InventoryService.ORIGIN_SERVICE));
+  }
+
+  private boolean failsWhenRunning() {
+    if (this.failsWhenRunning) {
+      log.debug(
+          """
+          >> Service is configured to be failing when processing events. "
+             This option can be configured with the "SERVICE_INVENTORY_FAILING" environment variable.
+          """);
+    }
+    return this.failsWhenRunning;
   }
 }

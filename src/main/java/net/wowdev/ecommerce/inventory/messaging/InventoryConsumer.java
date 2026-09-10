@@ -27,7 +27,7 @@ public class InventoryConsumer {
   @KafkaHandler
   public void consume(final OrderCreated event) {
     log.debug(
-        ">> Processing OrderCreated sent by {}. Event id: {}",
+        ">> Processing OrderCreated event sent by {}. Event id: {}",
         event.origin(),
         event.eventId());
     inventoryService.process(event.orderDTO());
