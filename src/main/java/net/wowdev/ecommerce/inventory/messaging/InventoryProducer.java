@@ -23,13 +23,13 @@ public class InventoryProducer {
   @Value("${app.kafka.orders-topic}")
   private String ordersTopic;
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void publish(final InventoryCompleted event) {
     log.debug(">> Publishing InventoryCompleted event {} on topic {}", event.eventId(), inventoryTopic);
     kafkaTemplate.send(inventoryTopic, event.eventId().toString(), event);
   }
 
-  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+  @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void publish(InventoryFailed event) {
     log.debug(
         ">> Publishing InventoryFailed event {} on topic {}", event.eventId(), ordersTopic);
