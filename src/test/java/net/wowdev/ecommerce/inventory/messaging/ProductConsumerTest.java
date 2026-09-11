@@ -12,4 +12,9 @@ class ProductConsumerTest {
     product.setName("item");
     new ProductConsumer().consume(product);
   }
+
+  @Test
+  void acceptsUnknownEventWithoutThrowing() {
+    new ProductConsumer().handleUnknown("unknown");
+  }
 }

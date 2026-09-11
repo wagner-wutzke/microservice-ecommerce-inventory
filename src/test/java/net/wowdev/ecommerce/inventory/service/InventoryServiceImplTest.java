@@ -16,6 +16,7 @@ import net.wowdev.ecommerce.inventory.repository.InventoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 class InventoryServiceImplTest {
   private final UUID id = UUID.randomUUID();
@@ -124,6 +125,16 @@ class InventoryServiceImplTest {
   }
 
   @Test
+  void processesOrderAndPublishesCompletionWhenConfiguredToFail() {
+    ReflectionTestUtils.setField(service, "failsWhenRunning", true);
+    OrderDTO order = order();
+
+    service.process(order);
+
+    verify(producer).publish(argThat((InventoryCompleted event) -> event.orderDTO().equals(order)));
+  }
+
+  @Test
   void compensatesOrderWithReasonAndPublishesFailureEvent() {
     OrderDTO order = order();
     service.compensate(order, "payment failed");
@@ -134,5 +145,13 @@ class InventoryServiceImplTest {
                     e.orderDTO().equals(order)
                         && e.reason().equals("payment failed")
                         && e.origin().equals(InventoryService.ORIGIN_SERVICE)));
+  }
+
+  @Test
+  void reportsWhetherFailureModeIsEnabled() {
+    assertThat((Boolean) ReflectionTestUtils.invokeMethod(service, "failsWhenRunning")).isFalse();
+
+    ReflectionTestUtils.setField(service, "failsWhenRunning", true);
+    assertThat((Boolean) ReflectionTestUtils.invokeMethod(service, "failsWhenRunning")).isTrue();
   }
 }
