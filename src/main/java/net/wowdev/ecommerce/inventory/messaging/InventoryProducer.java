@@ -18,21 +18,17 @@ public class InventoryProducer {
   private final KafkaTemplate<String, Object> kafkaTemplate;
 
   @Value("${app.kafka.inventory-topic}")
-  private String inventoryTopic;
-
-  @Value("${app.kafka.orders-topic}")
-  private String ordersTopic;
+  private String topic;
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void publish(final InventoryCompleted event) {
-    log.debug(">> Publishing InventoryCompleted event {} on topic {}", event.eventId(), inventoryTopic);
-    kafkaTemplate.send(inventoryTopic, event.eventId().toString(), event);
+    log.debug(">> Publishing InventoryCompleted event {}", event.eventId());
+    kafkaTemplate.send(topic, event.eventId().toString(), event);
   }
 
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void publish(InventoryFailed event) {
-    log.debug(
-        ">> Publishing InventoryFailed event {} on topic {}", event.eventId(), ordersTopic);
-    kafkaTemplate.send(ordersTopic, event.eventId().toString(), event);
+    log.debug(">> Publishing InventoryFailed event {}", event.eventId());
+    kafkaTemplate.send(topic, event.eventId().toString(), event);
   }
 }

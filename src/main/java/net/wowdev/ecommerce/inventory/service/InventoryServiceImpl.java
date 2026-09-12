@@ -36,6 +36,47 @@ public class InventoryServiceImpl implements InventoryService {
   @Value("${app.service.inventory.failing}")
   private boolean failsWhenRunning;
 
+  private static InventoryEntity getNewInventoryEntity(
+      OrderDTO orderDTO, OrderLineDTO orderLine, InventoryEntity currentInventory) {
+    final int previousQuantity = currentInventory.getCurrentQuantity();
+    final int changedQuantity = orderLine.getQuantity();
+    final InventoryEntity inventoryEntity =
+        getBasicInventoryEntity(orderDTO, orderLine, currentInventory);
+    inventoryEntity.setCurrentQuantity(previousQuantity - changedQuantity);
+    inventoryEntity.setChangeType(InventoryChangeType.SELLING);
+    return inventoryEntity;
+  }
+
+  private static InventoryEntity getCompensatedInventoryEntity(
+      final OrderDTO orderDTO,
+      final OrderLineDTO orderLine,
+      final InventoryEntity currentInventory) {
+    final int previousQuantity = currentInventory.getCurrentQuantity();
+    final int changedQuantity = orderLine.getQuantity();
+    final InventoryEntity inventoryEntity =
+        getBasicInventoryEntity(orderDTO, orderLine, currentInventory);
+    inventoryEntity.setCurrentQuantity(previousQuantity + changedQuantity);
+    inventoryEntity.setChangeType(InventoryChangeType.ORDER_CANCEL);
+    return inventoryEntity;
+  }
+
+  private static InventoryEntity getBasicInventoryEntity(
+      final OrderDTO orderDTO,
+      final OrderLineDTO orderLine,
+      final InventoryEntity currentInventory) {
+    final int previousQuantity = currentInventory.getCurrentQuantity();
+    final int changedQuantity = orderLine.getQuantity();
+    final Instant now = Instant.now();
+    final InventoryEntity inventoryEntity = new InventoryEntity();
+    inventoryEntity.setProductId(orderLine.getProductId());
+    inventoryEntity.setOrderId(orderDTO.getId());
+    inventoryEntity.setPreviousQuantity(previousQuantity);
+    inventoryEntity.setChangedQuantity(changedQuantity);
+    inventoryEntity.setCreatedAt(now);
+    inventoryEntity.setModifiedAt(now);
+    return inventoryEntity;
+  }
+
   @Transactional(readOnly = true)
   @Override
   public InventoryDTO findById(final UUID id, final UUID productId) {
@@ -121,34 +162,30 @@ public class InventoryServiceImpl implements InventoryService {
     }
   }
 
-  private static InventoryEntity getNewInventoryEntity(
-      OrderDTO orderDTO, OrderLineDTO orderLine, InventoryEntity currentInventory) {
-    final int previousQuantity = currentInventory.getCurrentQuantity();
-    final int changedQuantity = orderLine.getQuantity();
-    final Instant now = Instant.now();
-    final InventoryEntity inventoryEntity = new InventoryEntity();
-    // inventoryEvent.setId(UUID.randomUUID());
-    inventoryEntity.setProductId(orderLine.getProductId());
-    inventoryEntity.setOrderId(orderDTO.getId());
-    inventoryEntity.setPreviousQuantity(previousQuantity);
-    inventoryEntity.setChangedQuantity(changedQuantity);
-    inventoryEntity.setCurrentQuantity(previousQuantity - changedQuantity);
-    inventoryEntity.setChangeType(InventoryChangeType.SELLING);
-    inventoryEntity.setCreatedAt(now);
-    inventoryEntity.setModifiedAt(now);
-    return inventoryEntity;
-  }
-
   @Override
   @Transactional
   public void compensate(OrderDTO orderDTO, final String reason) {
+    final List<InventoryEntity> toSave = new ArrayList<>();
     orderDTO
         .getOrderLines()
         .forEach(
             orderLine -> {
-              // TODO update product inventory
               log.debug(">> Compensating inventory for product: {}", orderLine.getProductId());
+              final InventoryEntity currentInventory =
+                  Optional.ofNullable(
+                          repository.findAllByProductId(
+                              orderLine.getProductId(),
+                              PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"))))
+                      .map(Page::getContent)
+                      .orElseGet(List::of)
+                      .stream()
+                      .findFirst()
+                      .orElseThrow(() -> new ProductOutOfStockException(orderLine.getProductId()));
+              toSave.add(getCompensatedInventoryEntity(orderDTO, orderLine, currentInventory));
             });
+    if (!toSave.isEmpty()) {
+      repository.saveAll(toSave);
+    }
     publishInventoryFailedEvent(orderDTO, reason);
   }
 

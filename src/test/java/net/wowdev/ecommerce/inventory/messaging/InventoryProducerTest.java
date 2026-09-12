@@ -34,13 +34,12 @@ class InventoryProducerTest {
         new InventoryFailed(
             id, "tx", new OrderDTO(), "reason", Instant.now(), InventoryService.ORIGIN_SERVICE);
     producer.publish(event);
-    verify(kafka).send("orders", id.toString(), event);
+    verify(kafka).send("inventory", id.toString(), event);
   }
 
   private InventoryProducer producer(KafkaTemplate<String, Object> kafka) {
     InventoryProducer producer = new InventoryProducer(kafka);
-    ReflectionTestUtils.setField(producer, "inventoryTopic", "inventory");
-    ReflectionTestUtils.setField(producer, "ordersTopic", "orders");
+    ReflectionTestUtils.setField(producer, "topic", "inventory");
     return producer;
   }
 }

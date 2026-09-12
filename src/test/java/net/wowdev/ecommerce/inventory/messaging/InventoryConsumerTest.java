@@ -16,8 +16,7 @@ class InventoryConsumerTest {
     InventoryService service = mock(InventoryService.class);
     InventoryConsumer consumer = new InventoryConsumer(service);
     OrderDTO order = new OrderDTO();
-    consumer.consume(
-        new OrderCreated(UUID.randomUUID(), "tx", order, Instant.now(), "orders"));
+    consumer.consume(new OrderCreated(UUID.randomUUID(), "tx", order, Instant.now(), "orders"));
     verify(service).process(order);
   }
 
@@ -27,8 +26,7 @@ class InventoryConsumerTest {
     InventoryConsumer consumer = new InventoryConsumer(service);
     OrderDTO order = new OrderDTO();
     consumer.consume(
-        new PaymentFailed(
-            UUID.randomUUID(), "tx", order, "declined", Instant.now(), "payments"));
+        new PaymentFailed(UUID.randomUUID(), "tx", order, "declined", Instant.now(), "payments"));
     verify(service).compensate(order, "declined");
   }
 

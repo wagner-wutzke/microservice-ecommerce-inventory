@@ -14,10 +14,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @KafkaListener(
     groupId = "${spring.kafka.consumer.group-id}",
-    topics = {
-      "${app.kafka.orders-topic}",
-      "${app.kafka.payments-topic}"
-    },
+    topics = {"${app.kafka.orders-topic}", "${app.kafka.payments-topic}"},
     containerFactory = "kafkaListenerContainerFactory")
 public class InventoryConsumer {
 
@@ -43,6 +40,6 @@ public class InventoryConsumer {
 
   @KafkaHandler(isDefault = true)
   public void handleUnknown(Object event) {
-    //log.debug(">> Received an unmapped event of type {}", event.getClass().getSimpleName());
+    // log.debug(">> Received an unmapped event of type {}", event.getClass().getSimpleName());
   }
 }

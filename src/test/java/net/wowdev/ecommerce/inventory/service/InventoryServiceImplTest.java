@@ -163,7 +163,19 @@ class InventoryServiceImplTest {
   @Test
   void compensatesOrderWithReasonAndPublishesFailureEvent() {
     OrderDTO order = order();
+    when(repository.findAllByProductId(eq(productId), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(java.util.List.of(entity())));
     service.compensate(order, "payment failed");
+    verify(repository)
+        .saveAll(
+            argThat(
+                entries -> {
+                  InventoryEntity restored = entries.iterator().next();
+                  return restored.getPreviousQuantity() == 8
+                      && restored.getChangedQuantity() == 2
+                      && restored.getCurrentQuantity() == 10
+                      && restored.getChangeType() == InventoryChangeType.ORDER_CANCEL;
+                }));
     verify(producer)
         .publish(
             argThat(
