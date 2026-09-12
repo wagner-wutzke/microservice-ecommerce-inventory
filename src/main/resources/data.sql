@@ -308,3 +308,20 @@ FROM (VALUES ('00000000-0000-4000-8000-000000000001', 66.00, 'Creator LAPTOP 16-
               'WEBCAM', TIMESTAMP '2025-10-13 11:46:25',
               TIMESTAMP '2025-10-13 11:53:25')) AS seed_rows
 WHERE NOT EXISTS (SELECT 1 FROM products);
+
+-- Idempotent initial inventory event: one stock-increase event per product.
+INSERT INTO inventory (id, product_id, order_id, current_quantity, changed_quantity,
+                       previous_quantity, change_type, created_at, modified_at)
+SELECT RANDOM_UUID(),
+       p.id,
+       NULL,
+       1000,
+       0,
+       0,
+       'INVENTORY_INCREASE',
+       CURRENT_TIMESTAMP,
+       CURRENT_TIMESTAMP
+FROM products p
+WHERE NOT EXISTS (SELECT 1
+                  FROM inventory i
+                  WHERE i.product_id = p.id);

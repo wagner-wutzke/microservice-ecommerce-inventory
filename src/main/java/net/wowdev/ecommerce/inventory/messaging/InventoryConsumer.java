@@ -16,8 +16,7 @@ import org.springframework.stereotype.Component;
     groupId = "${spring.kafka.consumer.group-id}",
     topics = {
       "${app.kafka.orders-topic}",
-      "${app.kafka.payments-topic}",
-      "${app.kafka.inventory-topic}"
+      "${app.kafka.payments-topic}"
     },
     containerFactory = "kafkaListenerContainerFactory")
 public class InventoryConsumer {

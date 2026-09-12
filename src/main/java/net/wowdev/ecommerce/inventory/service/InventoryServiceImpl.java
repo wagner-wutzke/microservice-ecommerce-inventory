@@ -1,12 +1,17 @@
 package net.wowdev.ecommerce.inventory.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.wowdev.ecommerce.domain.dto.InventoryDTO;
 import net.wowdev.ecommerce.domain.dto.OrderDTO;
+import net.wowdev.ecommerce.domain.dto.OrderLineDTO;
 import net.wowdev.ecommerce.domain.entity.InventoryEntity;
+import net.wowdev.ecommerce.domain.enums.InventoryChangeType;
 import net.wowdev.ecommerce.domain.events.InventoryCompleted;
 import net.wowdev.ecommerce.domain.events.InventoryFailed;
 import net.wowdev.ecommerce.domain.mapper.InventoryMapper;
@@ -72,27 +77,66 @@ public class InventoryServiceImpl implements InventoryService {
   @Override
   @Transactional
   public void process(OrderDTO orderDTO) {
-    // TODO check product availability for each order line. If available,
-    //  create new row entry reducing amount from last product entries.
+    log.debug(">> Processing inventory update for order: {}", orderDTO.getId());
     try {
-      if (failsWhenRunning) {
+      if (failsWhenRunning()) {
         throw new RuntimeException(
-            "Product " + orderDTO.getOrderLines().getFirst().getProductId() + " is out of stock.");
+            "Product "
+                + orderDTO.getOrderLines().getFirst().getProductId()
+                + " is no longer in catalog.");
       }
+      updateInventory(orderDTO);
+      publishInventoryCompletedEvent(orderDTO);
     } catch (RuntimeException e) {
       log.debug(
           ">> Inventory update for order {} failed. Reason: {}", orderDTO.getId(), e.getMessage());
+      publishInventoryFailedEvent(orderDTO, e.getMessage());
     }
+  }
 
-    log.debug(">> Processing inventory update for order: {}", orderDTO.getId());
+  private void updateInventory(OrderDTO orderDTO) {
+    List<InventoryEntity> toSave = new ArrayList<>();
     orderDTO
         .getOrderLines()
         .forEach(
             orderLine -> {
-              // TODO update product inventory
               log.debug(">> Updating inventory for product: {}", orderLine.getProductId());
+              final InventoryEntity currentInventory =
+                  Optional.ofNullable(
+                          repository.findAllByProductId(
+                              orderLine.getProductId(),
+                              PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "createdAt"))))
+                      .map(Page::getContent)
+                      .orElseGet(List::of)
+                      .stream()
+                      .findFirst()
+                      .orElseThrow(() -> new ProductOutOfStockException(orderLine.getProductId()));
+              if (currentInventory.getCurrentQuantity() < orderLine.getQuantity()) {
+                throw new ProductOutOfStockException(orderLine.getProductId());
+              }
+              toSave.add(getNewInventoryEntity(orderDTO, orderLine, currentInventory));
             });
-    publishInventoryCompletedEvent(orderDTO);
+    if (!toSave.isEmpty()) {
+      repository.saveAll(toSave);
+    }
+  }
+
+  private static InventoryEntity getNewInventoryEntity(
+      OrderDTO orderDTO, OrderLineDTO orderLine, InventoryEntity currentInventory) {
+    final int previousQuantity = currentInventory.getCurrentQuantity();
+    final int changedQuantity = orderLine.getQuantity();
+    final Instant now = Instant.now();
+    final InventoryEntity inventoryEntity = new InventoryEntity();
+    // inventoryEvent.setId(UUID.randomUUID());
+    inventoryEntity.setProductId(orderLine.getProductId());
+    inventoryEntity.setOrderId(orderDTO.getId());
+    inventoryEntity.setPreviousQuantity(previousQuantity);
+    inventoryEntity.setChangedQuantity(changedQuantity);
+    inventoryEntity.setCurrentQuantity(previousQuantity - changedQuantity);
+    inventoryEntity.setChangeType(InventoryChangeType.SELLING);
+    inventoryEntity.setCreatedAt(now);
+    inventoryEntity.setModifiedAt(now);
+    return inventoryEntity;
   }
 
   @Override

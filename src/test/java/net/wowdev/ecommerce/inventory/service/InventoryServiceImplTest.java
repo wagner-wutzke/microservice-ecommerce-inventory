@@ -115,6 +115,8 @@ class InventoryServiceImplTest {
   @Test
   void processesOrderAndPublishesUpdateEvent() {
     OrderDTO order = order();
+    when(repository.findAllByProductId(eq(productId), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(java.util.List.of(entity())));
     service.process(order);
     verify(producer)
         .publish(
@@ -128,10 +130,34 @@ class InventoryServiceImplTest {
   void processesOrderAndPublishesCompletionWhenConfiguredToFail() {
     ReflectionTestUtils.setField(service, "failsWhenRunning", true);
     OrderDTO order = order();
+    when(repository.findAllByProductId(eq(productId), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(java.util.List.of(entity())));
 
     service.process(order);
 
-    verify(producer).publish(argThat((InventoryCompleted event) -> event.orderDTO().equals(order)));
+    verify(producer)
+        .publish(
+            argThat(
+                (InventoryFailed event) ->
+                    event.orderDTO().equals(order)
+                        && event.reason().contains("no longer in catalog")));
+  }
+
+  @Test
+  void rejectsOrderWhenProductHasInsufficientInventory() {
+    when(repository.findAllByProductId(eq(productId), any(Pageable.class)))
+        .thenReturn(new PageImpl<>(java.util.List.of(entity())));
+    OrderDTO order = order();
+    order.getOrderLines().getFirst().setQuantity(9);
+
+    service.process(order);
+    verify(repository, never()).saveAll(any());
+    verify(producer)
+        .publish(
+            argThat(
+                (InventoryFailed event) ->
+                    event.orderDTO().equals(order)
+                        && event.reason().equals("Product " + productId + " is out of stock.")));
   }
 
   @Test
